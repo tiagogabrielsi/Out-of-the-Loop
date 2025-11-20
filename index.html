@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Out of the Loop</title>
+    <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;600&family=Nunito:wght@400;700&display=swap" rel="stylesheet">
+</head>
+<body>
+
+    <div class="background-animado"></div>
+
+    <div class="container">
+        
+        <div id="screen-setup" class="screen active zoom-in">
+            <div class="logo-container float-anim">
+                <h1 class="logo">OUT<br><span>of the</span><br>LOOP</h1>
+            </div>
+            
+            <div class="card-glass">
+                <p class="instruction">Quem vai jogar?</p>
+                <div id="player-list"></div>
+                
+                <div class="input-group">
+                    <input type="text" id="input-name" placeholder="Nome do jogador" autocomplete="off">
+                    <button class="btn-icon bounce" onclick="adicionarJogador()">+</button>
+                </div>
+            </div>
+            
+            <button id="btn-start" class="btn-main pulse" onclick="irParaCategorias()" disabled>COMEÇAR JOGO</button>
+        </div>
+
+        <div id="screen-categories" class="screen slide-in">
+            <h2>Escolha o Tema</h2>
+            <div id="category-grid"></div>
+        </div>
+
+        <div id="screen-pass" class="screen fade-in">
+            <div class="icon-pass float-anim">📱</div>
+            <p>Passe o celular para:</p>
+            <h1 id="pass-player-name" class="big-name pop-in">NOME</h1>
+            <button class="btn-main" onclick="revelarPapel()">Eu sou <span id="btn-pass-name">NOME</span></button>
+        </div>
+
+        <div id="screen-reveal" class="screen">
+            <p class="category-tag">Tema: <span id="reveal-category-name">...</span></p>
+            
+            <div class="flip-card-container" onclick="virarCarta()">
+                <div class="flip-card-inner" id="card-inner">
+                    <div class="flip-card-front">
+                        <h3>TOQUE PARA<br>REVELAR</h3>
+                        <span class="tap-icon">👆</span>
+                    </div>
+                    <div class="flip-card-back">
+                        <h1 id="secret-word">PALAVRA</h1>
+                        <p id="reveal-instruction">Instrução...</p>
+                    </div>
+                </div>
+            </div>
+
+            <button class="btn-main" id="btn-ready" style="opacity:0; pointer-events:none;" onclick="proximoTurnoRevelacao()">ENTENDI</button>
+        </div>
+
+        <div id="screen-questions" class="screen slide-in">
+            <p id="q-progress" style="opacity: 0.7; font-size: 0.9rem; margin-bottom: 10px;">Carregando...</p>
+            
+            <div class="question-box float-anim">
+                <div class="question-header">
+                    </div>
+                <hr>
+                <p id="question-text">Carregando...</p>
+            </div>
+
+            <div class="nav-container">
+                <button id="btn-prev-q" class="btn-nav" onclick="voltarPerguntaAnterior()">
+                    <span>⬅</span> Voltar
+                </button>
+                
+                <button id="btn-next-q" class="btn-nav" onclick="proximaPerguntaDaFila()">
+                    Próxima <span>➡</span>
+                </button>
+            </div>
+            
+            <button id="btn-vote" class="btn-main red" style="display:none;" onclick="iniciarVotacao()">Hora da Votação 🗳️</button>
+        </div>
+
+        <div id="screen-voting" class="screen zoom-in">
+            <h2>Hora da Votação! 🗳️</h2>
+            
+            <div class="voter-highlight">
+                <p class="small-label">Quem está votando:</p>
+                <h1 id="voter-name" class="big-voter-name">NOME</h1>
+            </div>
+
+            <p class="instruction-text">Toque no suspeito:</p>
+            <div id="voting-options" class="grid-buttons"></div>
+        </div>
+
+        <div id="screen-result" class="screen fade-in">
+            
+            <div class="result-section">
+                <p class="result-label">A maioria votou em...</p>
+                
+                <div id="suspense-loading-vote" class="dots-loading">
+                    <span>.</span><span>.</span><span>.</span>
+                </div>
+
+                <h1 id="voted-out-name" class="mega-text hidden-element">NOME</h1>
+            </div>
+            
+            <div id="impostor-section" class="result-section hidden-element" style="margin-top: 40px;">
+                <p class="result-label">Mas quem estava por fora?</p>
+                
+                <div id="suspense-loading-impostor" class="dots-loading">
+                    <span style="color: var(--accent)">?</span>
+                    <span style="color: var(--accent)">?</span>
+                    <span style="color: var(--accent)">?</span>
+                </div>
+
+                <h2 id="impostor-reveal-name" class="mega-text hidden-element" style="color: var(--accent);">IMPOSTOR</h2>
+            </div>
+
+            <div id="final-actions" class="hidden-element">
+                <p id="result-message" class="message-box"></p>
+                
+                <button id="btn-impostor-guess" class="btn-main purple pulse" style="display:none;" onclick="telaAdivinhacaoImpostor()">Tentar Salvar!</button>
+                <button id="btn-final-scores" class="btn-main" onclick="mostrarPlacar()">Ver Placar</button>
+            </div>
+        </div>
+
+        <div id="screen-impostor-guess" class="screen slide-in">
+            <h2>Última Chance!</h2>
+            <p>Qual era a palavra secreta?</p>
+            <div id="guess-options" class="grid-buttons"></div>
+        </div>
+
+        <div id="screen-guess-result" class="screen fade-in">
+            
+            <div class="result-section">
+                <p class="result-label"><span id="impostor-name-guess">O Impostor</span> disse...</p>
+                <h1 id="guessed-word" class="mega-text" style="color: var(--secondary);">PALAVRA</h1>
+            </div>
+
+            <div id="real-word-section" class="result-section hidden-element" style="margin-top: 40px;">
+                <p class="result-label">Mas qual era a palavra secreta?</p>
+                
+                <div id="suspense-loading-secret" class="dots-loading">
+                    <span style="color: var(--accent)">?</span>
+                    <span style="color: var(--accent)">?</span>
+                    <span style="color: var(--accent)">?</span>
+                </div>
+
+                <h1 id="real-secret-word" class="mega-text hidden-element" style="color: #f1c40f;">REAL</h1>
+            </div>
+
+            <div id="final-guess-actions" class="hidden-element" style="margin-top: 30px;">
+                <p id="guess-result-msg" class="message-box"></p>
+                <button class="btn-main" onclick="mostrarPlacar()">Ver Placar</button>
+            </div>
+
+        </div>
+
+        <div id="screen-scoreboard" class="screen zoom-in">
+            <h2>Placar</h2>
+            <ul id="score-list"></ul>
+            
+            <p id="round-display" class="round-text">Rodada 1</p>
+            
+            <button class="btn-main" onclick="telaMenuNovaRodada()">Jogar Novamente 🔄</button>
+        </div>
+
+        <div id="screen-new-round" class="screen slide-in">
+            <h2>Próxima Rodada</h2>
+            <p>O que desejam fazer?</p>
+            
+            <div class="menu-options">
+                <button class="btn-main purple" onclick="executarNovaRodada('categorias')">Ver mais categorias 📚</button>
+                <button class="btn-main" onclick="executarNovaRodada('mesma')">Mesma Categoria 🔁</button>
+                <button class="btn-secondary" onclick="executarNovaRodada('jogadores')">Adicionar ou Remover Jogadores 👥</button>
+            </div>
+        </div>
+
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
